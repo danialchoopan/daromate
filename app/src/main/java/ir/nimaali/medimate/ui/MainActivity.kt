@@ -1,5 +1,9 @@
 package ir.nimaali.medimate.ui
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,9 +23,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ir.nimaali.medimate.util.NotificationUtils
@@ -36,19 +45,21 @@ class MainActivity : ComponentActivity() {
         NotificationUtils.createNotificationChannel(this)
 
         setContent {
-            MedicineReminderTheme {
-                val systemUiController = rememberSystemUiController()
-                val useDarkIcons = !isSystemInDarkTheme()
+            RightToLeftLayout {
+                MedicineReminderTheme {
+                    val systemUiController = rememberSystemUiController()
+                    val useDarkIcons = !isSystemInDarkTheme()
 
-                DisposableEffect(systemUiController, useDarkIcons) {
-                    systemUiController.setSystemBarsColor(
-                        color = Color.Transparent,
-                        darkIcons = useDarkIcons
-                    )
-                    onDispose {}
+                    DisposableEffect(systemUiController, useDarkIcons) {
+                        systemUiController.setSystemBarsColor(
+                            color = Color.Transparent,
+                            darkIcons = useDarkIcons
+                        )
+                        onDispose {}
+                    }
+
+                    MedicineReminderApp()
                 }
-
-                MedicineReminderApp()
             }
         }
     }
@@ -70,4 +81,11 @@ fun MedicineReminderTheme(content: @Composable () -> Unit) {
         ),
         content = content
     )
+}
+
+@Composable
+fun RightToLeftLayout(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        content()
+    }
 }

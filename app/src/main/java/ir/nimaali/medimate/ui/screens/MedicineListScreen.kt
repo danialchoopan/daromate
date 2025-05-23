@@ -1,5 +1,6 @@
 package ir.nimaali.medimate.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,10 +10,16 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import ir.nimaali.medimate.R
 import ir.nimaali.medimate.data.table.Medicine
+import ir.nimaali.medimate.ui.theme.vazirFontFamily
 import ir.nimaali.medimate.util.DateTimeUtils
 import ir.nimaali.medimate.viewmodel.MedicineViewModel
 
@@ -20,17 +27,38 @@ import ir.nimaali.medimate.viewmodel.MedicineViewModel
 @Composable
 fun MedicineListScreen(
     viewModel: MedicineViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val medicines = viewModel.medicines.collectAsState().value
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("مدیریت داروها") },
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.baseline_medical_information_24), // your logo in drawable
+                            contentDescription = "Logo",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "مدیریت داروها",
+                            color = Color.White,
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
+                            fontFamily = vazirFontFamily
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White
                 )
             )
         },
@@ -43,17 +71,32 @@ fun MedicineListScreen(
             }
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            items(medicines) { medicine ->
-                MedicineItem(
-                    medicine = medicine,
-                    onClick = { navController.navigate("medicineDetail/${medicine.id}") }
+        if (medicines.isEmpty()) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(
+                    "دارو برای یادآوری موجود نیست",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    fontFamily = vazirFontFamily
                 )
-                Divider()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+            ) {
+                items(medicines) { medicine ->
+                    MedicineItem(
+                        medicine = medicine,
+                        onClick = { navController.navigate("medicineDetail/${medicine.id}") }
+                    )
+                    Divider()
+                }
             }
         }
     }
@@ -64,29 +107,42 @@ fun MedicineItem(medicine: Medicine, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(9.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = medicine.name,
-                style = MaterialTheme.typography.titleMedium
+
+            Column(
+                modifier = Modifier.padding(18.dp)
+            ) {
+                Text(
+                    text = medicine.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontFamily = vazirFontFamily
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "شروع از: ${DateTimeUtils.timestampToPersianDate(medicine.startDate)}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontFamily = vazirFontFamily
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.baseline_medical_services_24_black), // your logo in drawable
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(58.dp)
+                    .padding(end = 10.dp)
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = medicine.description,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "شروع از: ${DateTimeUtils.timestampToPersianDate(medicine.startDate)}",
-                style = MaterialTheme.typography.labelSmall
-            )
+
         }
     }
 }

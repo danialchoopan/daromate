@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import ir.nimaali.medimate.data.table.Medicine
 import ir.nimaali.medimate.data.table.Reminder
 import kotlinx.coroutines.flow.Flow
 
@@ -21,6 +22,15 @@ interface ReminderDao {
     @Query("SELECT * FROM reminders WHERE medicineId = :medicineId")
     fun getRemindersForMedicine(medicineId: Int): Flow<List<Reminder>>
 
+
+    @Query("SELECT * FROM reminders WHERE id = :id")
+    fun getReminderById(id: Int): Flow<Reminder?>
+
     @Query("SELECT * FROM reminders WHERE nextReminderTime <= :currentTime AND isActive = 1")
     suspend fun getActiveReminders(currentTime: Long): List<Reminder>
+
+
+
+    @Query("DELETE FROM reminders WHERE medicineId = :medicineId")
+    suspend fun deleteRemindersForMedicine(medicineId: Int): Int
 }

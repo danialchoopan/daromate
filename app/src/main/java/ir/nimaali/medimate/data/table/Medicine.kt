@@ -6,7 +6,8 @@ import java.util.Date
 
 @Entity(tableName = "medicines")
 data class Medicine(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val name: String,
     val description: String,
     val startDate: Long, // timestamp

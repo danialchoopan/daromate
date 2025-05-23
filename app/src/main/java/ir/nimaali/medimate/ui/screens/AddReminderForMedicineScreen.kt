@@ -21,6 +21,8 @@ import androidx.navigation.NavController
 import com.gmail.hamedvakhide.compose_jalali_datepicker.JalaliDatePickerDialog
 import ir.huri.jcal.JalaliCalendar
 import ir.nimaali.medimate.R
+import ir.nimaali.medimate.data.dao.MedicineDao
+import ir.nimaali.medimate.data.dao.ReminderDao
 import ir.nimaali.medimate.data.table.IntervalType
 import ir.nimaali.medimate.data.table.Medicine
 import ir.nimaali.medimate.ui.theme.vazirFontFamily
@@ -30,14 +32,16 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMedicineScreen(
+fun AddReminderForMedicineScreen(
+    medicineId: Int,
+    medicineDao: MedicineDao,
+    reminderDao: ReminderDao,
     viewModel: MedicineViewModel,
     navController: NavController
 ) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    val medicine by medicineDao.getMedicineById(medicineId).collectAsState(initial = null)
 
-    val m_context= LocalContext.current
+    val m_context = LocalContext.current
 
     // حالت‌های شروع
     var startOption by remember { mutableStateOf(StartOption.NOW) }
@@ -77,7 +81,7 @@ fun AddMedicineScreen(
                                 .padding(end = 8.dp)
                         )
                         Text(
-                            text = "افزودن داروی جدید",
+                            text = "افزودن یادآوری جدید",
                             color = Color.White,
                             style = MaterialTheme.typography.titleLarge,
                             fontFamily = vazirFontFamily
@@ -95,7 +99,6 @@ fun AddMedicineScreen(
                 )
             )
         }
-
     ) { padding ->
         Column(
             modifier = Modifier
@@ -103,24 +106,28 @@ fun AddMedicineScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("نام دارو",
-                    fontFamily = vazirFontFamily) },
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (medicine != null) {
+                OutlinedTextField(
+                    value = medicine!!.name,
+                    onValueChange = { },
+                    label = { Text("نام دارو", fontFamily = vazirFontFamily) },
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("توضیحات",
-                    fontFamily = vazirFontFamily) },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3
-            )
+                OutlinedTextField(
+                    value = medicine!!.description,
+                    onValueChange = {  },
+                    label = { Text("توضیحات", fontFamily = vazirFontFamily) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = false,
+                    maxLines = 3
+                )
+            } else {
+                Text("دارو یافت نشد")
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -133,15 +140,13 @@ fun AddMedicineScreen(
                 FilterChip(
                     selected = startOption == StartOption.NOW,
                     onClick = { startOption = StartOption.NOW },
-                    label = { Text("همین الان",
-                        fontFamily = vazirFontFamily) }
+                    label = { Text("همین الان", fontFamily = vazirFontFamily) }
                 )
 
                 FilterChip(
                     selected = startOption == StartOption.LATER,
                     onClick = { startOption = StartOption.LATER },
-                    label = { Text("تاریخ و زمان مشخص",
-                        fontFamily = vazirFontFamily) }
+                    label = { Text("تاریخ و زمان مشخص", fontFamily = vazirFontFamily) }
                 )
             }
 
@@ -152,8 +157,7 @@ fun AddMedicineScreen(
                     onClick = { showDatePicker.value = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("انتخاب تاریخ: ${DateTimeUtils.timestampToPersianDate(selectedDate)}",
-                        fontFamily = vazirFontFamily)
+                    Text("انتخاب تاریخ: ${DateTimeUtils.timestampToPersianDate(selectedDate)}", fontFamily = vazirFontFamily)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -162,15 +166,13 @@ fun AddMedicineScreen(
                     onClick = { showTimePicker = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("انتخاب زمان: ${"%02d".format(selectedHour)}:${"%02d".format(selectedMinute)}",
-                        fontFamily = vazirFontFamily)
+                    Text("انتخاب زمان: ${"%02d".format(selectedHour)}:${"%02d".format(selectedMinute)}", fontFamily = vazirFontFamily)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text("بازه زمانی یادآوری:", style = MaterialTheme.typography.labelLarge,
-                fontFamily = vazirFontFamily)
+            Text("بازه زمانی یادآوری:", style = MaterialTheme.typography.labelLarge, fontFamily = vazirFontFamily)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -179,8 +181,7 @@ fun AddMedicineScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp
-                        )
+                        .padding(vertical = 4.dp)
                 ) {
                     RadioButton(
                         selected = selectedInterval == interval,
@@ -199,38 +200,17 @@ fun AddMedicineScreen(
 
             Button(
                 onClick = {
-                    if(name.trim().isNotEmpty() || description.trim().isNotEmpty()){
-
-
-                    val startTime = if (startOption == StartOption.NOW) {
-                        System.currentTimeMillis()
+                    if (medicine != null) {
+                        viewModel.addReminderForMedicine(medicine!!.id, selectedInterval)
+                        navController.popBackStack()
                     } else {
-                        // ترکیب تاریخ و زمان انتخاب شده
-                        val calendar = Calendar.getInstance().apply {
-                            timeInMillis = selectedDate
-                            set(Calendar.HOUR_OF_DAY, selectedHour)
-                            set(Calendar.MINUTE, selectedMinute)
-                            set(Calendar.SECOND, 0)
-                        }
-                        calendar.timeInMillis
-                    }
-
-                    val medicine = Medicine(
-                        name = name,
-                        description = description,
-                        startDate = startTime
-                    )
-                    viewModel.addMedicine(medicine, selectedInterval)
-                    navController.popBackStack()
-                    }else{
-                        Toast.makeText(m_context,"نام و توضیحات را لطفا وارد کنید ",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(m_context, "نام و توضیحات را لطفا وارد کنید", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = name.isNotBlank()
+                enabled = medicine != null
             ) {
-                Text("ذخیره دارو",
-                    fontFamily = vazirFontFamily)
+                Text("ذخیره یادآوری", fontFamily = vazirFontFamily)
             }
         }
     }
@@ -238,7 +218,6 @@ fun AddMedicineScreen(
     if (showDatePicker.value) {
         JalaliDatePickerDialog(
             openDialog = showDatePicker,
-//            onDismissRequest = { showDatePicker = false },
             onSelectDay = { jalaliDate ->
                 val calendar = JalaliCalendar(jalaliDate.year, jalaliDate.month, jalaliDate.day)
                 selectedDate = calendar.toGregorian().timeInMillis
@@ -261,62 +240,4 @@ fun AddMedicineScreen(
             }
         )
     }
-}
-
-@Composable
-fun TimePickerDialog(
-    onCancel: () -> Unit,
-    onConfirm: (hour: Int, minute: Int) -> Unit
-) {
-    var selectedHour by remember { mutableStateOf(0) }
-    var selectedMinute by remember { mutableStateOf(0) }
-
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = { Text("انتخاب زمان",
-            fontFamily = vazirFontFamily) },
-        text = {
-            Column {
-                Text("ساعت:", style = MaterialTheme.typography.labelMedium,
-                    fontFamily = vazirFontFamily)
-                Slider(
-                    value = selectedHour.toFloat(),
-                    onValueChange = { selectedHour = it.toInt() },
-                    valueRange = 0f..23f,
-                    steps = 22
-                )
-                Text("$selectedHour:00", style = MaterialTheme.typography.bodyLarge,
-                    fontFamily = vazirFontFamily)
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text("دقیقه:", style = MaterialTheme.typography.labelMedium,
-                    fontFamily = vazirFontFamily)
-                Slider(
-                    value = selectedMinute.toFloat(),
-                    onValueChange = { selectedMinute = it.toInt() },
-                    valueRange = 0f..59f,
-                    steps = 58
-                )
-                Text("00:$selectedMinute", style = MaterialTheme.typography.bodyLarge,
-                    fontFamily = vazirFontFamily)
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(selectedHour, selectedMinute) }) {
-                Text("تأیید",
-                    fontFamily = vazirFontFamily)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onCancel) {
-                Text("انصراف",
-                    fontFamily = vazirFontFamily)
-            }
-        }
-    )
-}
-
-enum class StartOption {
-    NOW, LATER
 }

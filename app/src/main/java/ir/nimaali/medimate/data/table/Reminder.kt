@@ -17,9 +17,9 @@ data class Reminder(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val medicineId: Int,
     val intervalType: IntervalType,
-    val intervalValue: Int, // تعداد ساعت/روز/هفته
-    val nextReminderTime: Long, // timestamp
-    val isActive: Boolean = true
+    var intervalValue: Int, // تعداد ساعت/روز/هفته
+    var nextReminderTime: Long, // timestamp
+    var isActive: Boolean = true
 )
 
 enum class IntervalType {

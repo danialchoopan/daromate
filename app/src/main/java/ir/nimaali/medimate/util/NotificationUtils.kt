@@ -34,9 +34,10 @@ object NotificationUtils {
         val persianDateTime = DateTimeUtils.timestampToPersianDateTime(reminderTime)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.baseline_medication_liquid_24_green)
             .setContentTitle("یادآوری مصرف دارو")
-            .setContentText("زمان مصرف $medicineName فرا رسیده است ($persianDateTime)")
+            .setContentText("زمان مصرف $medicineName  فرا رسیده است \n" +
+                    "  ($persianDateTime)")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
