@@ -1,5 +1,7 @@
 package ir.nimaali.medimate.ui.screens
 
+import android.app.Activity
+import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,12 +9,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,6 +30,7 @@ import ir.nimaali.medimate.data.table.Medicine
 import ir.nimaali.medimate.ui.theme.vazirFontFamily
 import ir.nimaali.medimate.util.DateTimeUtils
 import ir.nimaali.medimate.viewmodel.MedicineViewModel
+import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +39,9 @@ fun MedicineListScreen(
     navController: NavController,
 ) {
     val medicines = viewModel.medicines.collectAsState().value
+    var expanded by remember {
+        mutableStateOf(false)
+    }
 
     Scaffold(
         topBar = {
@@ -59,7 +71,37 @@ fun MedicineListScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "منو",
+                            tint = Color.White
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("درباره من", fontFamily = vazirFontFamily) },
+                            onClick = {
+                                expanded = false
+                                navController.navigate("about")
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("خروج", fontFamily = vazirFontFamily) },
+                            onClick = {
+                                expanded = false
+                                navController.popBackStack()
+                                exitProcess(0)
+                            }
+                        )
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -69,7 +111,7 @@ fun MedicineListScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = "افزودن دارو")
             }
-        }
+        },
     ) { padding ->
         if (medicines.isEmpty()) {
             Column(

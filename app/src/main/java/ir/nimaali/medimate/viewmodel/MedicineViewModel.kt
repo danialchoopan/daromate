@@ -74,7 +74,7 @@ class MedicineViewModel(
             val reminderId = reminderDao.insert(reminder).toInt()
 
             // 5. زمان‌بندی اولین یادآوری
-            ReminderScheduler.scheduleReminder(
+            ReminderScheduler.scheduleRepeatingReminder(
                 context = context,
                 reminder = reminder.copy(id = reminderId),
                 medicineName = medicine.name
@@ -133,6 +133,21 @@ class MedicineViewModel(
         }
     }
 
+    fun deleteReminderById(reminderId: Int) {
+        viewModelScope.launch {
+            // 1. دریافت تمام یادآوری‌های مربوط به این دارو
+            val reminders = reminderDao.getReminderById(reminderId).first()
+            if (reminders != null) {
+                reminders.isActive = false
+                reminderDao.update(reminders)
+            }
+            if (reminders != null) {
+                ReminderScheduler.cancelReminder(context, reminders.id)
+            }
+            reminderDao.delete(reminderId)
+        }
+    }
+
     fun enableReminderById(reminderId: Int) {
         viewModelScope.launch {
             // دریافت یادآوری از دیتابیس
@@ -153,20 +168,6 @@ class MedicineViewModel(
                     )
                 }
             }
-        }
-    }
-
-    fun updateNextReminderTime(reminderId: Int) {
-        viewModelScope.launch {
-            val reminder = reminderDao.getReminderById(reminderId).first() ?: return@launch
-
-            val nextTime = calculateNextReminderTime(
-                startTime = reminder.nextReminderTime,
-                intervalType = reminder.intervalType,
-                intervalValue = reminder.intervalValue
-            )
-
-            reminderDao.update(reminder.copy(nextReminderTime = nextTime))
         }
     }
 

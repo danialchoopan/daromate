@@ -2,6 +2,7 @@ package ir.nimaali.medimate.ui.screens
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import ir.nimaali.medimate.R
 import ir.nimaali.medimate.data.dao.MedicineDao
 import ir.nimaali.medimate.data.dao.ReminderDao
 import ir.nimaali.medimate.data.table.IntervalType
@@ -69,7 +72,7 @@ fun MedicineDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = medicine?.name + "جزئیات دارو",
+                                text = medicine?.name + " جزئیات دارو ",
                                 color = Color.White,
                                 style = MaterialTheme.typography.titleLarge,
                                 fontFamily = vazirFontFamily
@@ -229,6 +232,7 @@ fun ReminderItem(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     ) {
+
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -249,7 +253,8 @@ fun ReminderItem(
                 fontFamily = vazirFontFamily
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Row {
+            Row(horizontalArrangement = Arrangement.SpaceAround) {
+
                 Switch(
                     checked = reminder.isActive,
                     onCheckedChange = {
@@ -260,7 +265,8 @@ fun ReminderItem(
 
                         } else {
                             viewModel.enableReminderById(reminder.id)
-                            Toast.makeText(m_context, "یادآوری فعال شد", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(m_context, "یادآوری فعال شد", Toast.LENGTH_SHORT)
+                                .show()
 
                         }
 
@@ -269,10 +275,28 @@ fun ReminderItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = if (reminder.isActive) "فعال" else "غیرفعال",
-                    modifier = Modifier.align(Alignment.CenterVertically),
+                        modifier = Modifier.align(Alignment.CenterVertically),
                     fontFamily = vazirFontFamily
                 )
+
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                IconButton(
+                    modifier = Modifier.size(48.dp),
+                    onClick = { viewModel.deleteReminderById(reminder.id) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "حذف",
+                        tint = Color.Red,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+
+
             }
         }
+
     }
 }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ir.nimaali.medimate.data.AppDatabase
+import ir.nimaali.medimate.ui.screens.AboutScreen
 import ir.nimaali.medimate.ui.screens.AddMedicineScreen
 import ir.nimaali.medimate.ui.screens.AddReminderForMedicineScreen
 import ir.nimaali.medimate.ui.screens.MedicineDetailScreen
@@ -52,10 +53,10 @@ fun MedicineReminderApp() {
                 navController = navController
             )
         }
-        composable("addReminder/{medicineId}") {backStackEntry ->
+        composable("addReminder/{medicineId}") { backStackEntry ->
             val medicineId = backStackEntry.arguments?.getString("medicineId")?.toIntOrNull() ?: 0
             AddReminderForMedicineScreen(
-                medicineId=medicineId,
+                medicineId = medicineId,
                 medicineDao = database.medicineDao(),
                 reminderDao = database.reminderDao(),
                 viewModel = viewModel,
@@ -71,6 +72,9 @@ fun MedicineReminderApp() {
                 reminderDao = database.reminderDao(),
                 navController = navController
             )
+        }
+        composable("about") {
+            AboutScreen(navController)
         }
     }
 }

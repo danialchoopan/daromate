@@ -238,7 +238,6 @@ fun AddMedicineScreen(
     if (showDatePicker.value) {
         JalaliDatePickerDialog(
             openDialog = showDatePicker,
-//            onDismissRequest = { showDatePicker = false },
             onSelectDay = { jalaliDate ->
                 val calendar = JalaliCalendar(jalaliDate.year, jalaliDate.month, jalaliDate.day)
                 selectedDate = calendar.toGregorian().timeInMillis

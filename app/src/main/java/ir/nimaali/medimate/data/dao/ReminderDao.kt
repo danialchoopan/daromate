@@ -29,8 +29,6 @@ interface ReminderDao {
     @Query("SELECT * FROM reminders WHERE nextReminderTime <= :currentTime AND isActive = 1")
     suspend fun getActiveReminders(currentTime: Long): List<Reminder>
 
-
-
     @Query("DELETE FROM reminders WHERE medicineId = :medicineId")
     suspend fun deleteRemindersForMedicine(medicineId: Int): Int
 }

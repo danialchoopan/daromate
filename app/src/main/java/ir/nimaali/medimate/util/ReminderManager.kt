@@ -30,7 +30,6 @@ class ReminderManager(
 
             reminderDao.update(reminder.copy(nextReminderTime = nextTime))
 
-            // اگر نیاز به زمان‌بندی مجدد دارید
             if (reminder.isActive) {
                 val medicine = getMedicineForReminder(reminder.medicineId)
                 medicine?.let {
