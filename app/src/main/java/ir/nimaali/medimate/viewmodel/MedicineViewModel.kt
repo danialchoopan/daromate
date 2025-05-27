@@ -199,25 +199,12 @@ class MedicineViewModel(
         }
 
         val now = System.currentTimeMillis()
-        if (startTime > now) {
-            return startTime
+        return if (startTime > now) {
+            startTime
+        } else {
+            val passedIntervals = ((now - startTime) / intervalMillis) + 1
+            startTime + passedIntervals * intervalMillis
         }
-
-        // محاسبه اولین زمان بعدی بعد از زمان حال
-        val passedIntervals = (now - startTime) / intervalMillis + 1
-        return startTime + passedIntervals * intervalMillis
     }
 
-//    private fun calculateNextReminderTime(
-//        startTime: Long,
-//        intervalType: IntervalType,
-//        intervalValue: Int,
-//    ): Long {
-//        return when (intervalType) {
-//            IntervalType.MINUTES -> startTime + intervalValue * 60 * 1000L
-//            IntervalType.HOURS -> startTime + intervalValue * 60 * 60 * 1000L
-//            IntervalType.DAYS -> startTime + intervalValue * 24 * 60 * 60 * 1000L
-//            IntervalType.WEEKS -> startTime + intervalValue * 7 * 24 * 60 * 60 * 1000L
-//        }
-//    }
 }

@@ -5,11 +5,13 @@ import ir.nimaali.medimate.app.MedicineApplication
 import ir.nimaali.medimate.data.dao.ReminderDao
 import ir.nimaali.medimate.data.table.IntervalType
 import ir.nimaali.medimate.data.table.Medicine
+import ir.nimaali.medimate.data.table.Reminder
 import ir.nimaali.medimate.ui.ReminderScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class ReminderManager(
@@ -18,34 +20,39 @@ class ReminderManager(
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    fun updateNextReminderTime(reminderId: Int) {
-        scope.launch {
-            val reminder = reminderDao.getReminderById(reminderId).first() ?: return@launch
+    suspend fun updateNextReminderTime(reminderId: Int): Reminder? {
+        val reminder = reminderDao.getReminderById(reminderId).firstOrNull() ?: return null
 
-            val nextTime = calculateNextReminderTime(
-                startTime = reminder.nextReminderTime,
-                intervalType = reminder.intervalType,
-                intervalValue = reminder.intervalValue
-            )
+        val currentTime = System.currentTimeMillis()
 
-            reminderDao.update(reminder.copy(nextReminderTime = nextTime))
+        val baseTime = maxOf(currentTime, reminder.nextReminderTime)
 
-            if (reminder.isActive) {
-                val medicine = getMedicineForReminder(reminder.medicineId)
-                medicine?.let {
-                    ReminderScheduler.scheduleReminder(
-                        context = context,
-                        reminder = reminder.copy(nextReminderTime = nextTime),
-                        medicineName = it.name
-                    )
-                }
+        val nextTime = calculateNextReminderTime(
+            startTime = baseTime,
+            intervalType = reminder.intervalType,
+            intervalValue = reminder.intervalValue
+        )
+
+        val updatedReminder = reminder.copy(nextReminderTime = nextTime)
+        reminderDao.update(updatedReminder)
+
+        if (reminder.isActive) {
+            val medicine = getMedicineForReminder(reminder.medicineId)
+            medicine?.let {
+                ReminderScheduler.scheduleReminder(
+                    context = context,
+                    reminder = updatedReminder,
+                    medicineName = it.name
+                )
             }
         }
+
+        return updatedReminder
     }
 
     private suspend fun getMedicineForReminder(medicineId: Int): Medicine? {
         val app = context.applicationContext as MedicineApplication
-        return app.database.medicineDao().getMedicineById(medicineId).first()
+        return app.database.medicineDao().getMedicineById(medicineId).firstOrNull()
     }
 
     private fun calculateNextReminderTime(

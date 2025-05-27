@@ -6,6 +6,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit
 
 
 object ReminderScheduler {
+
     fun scheduleReminder(
         context: Context,
         reminder: Reminder,
@@ -55,7 +57,6 @@ object ReminderScheduler {
         }
     }
 
-    @SuppressLint("ServiceCast")
     fun scheduleRepeatingReminder(
         context: Context,
         reminder: Reminder,
@@ -76,24 +77,31 @@ object ReminderScheduler {
         )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intervalMillis = when (reminder.intervalType) {
-            IntervalType.MINUTES -> reminder.intervalValue * 60 * 1000L
-            IntervalType.HOURS -> reminder.intervalValue * 60 * 60 * 1000L
-            IntervalType.DAYS -> reminder.intervalValue * 24 * 60 * 60 * 1000L
-            IntervalType.WEEKS -> reminder.intervalValue * 7 * 24 * 60 * 60 * 1000L
-        }
 
-        // برای اندروید 6.0 به بالا
-        alarmManager.setRepeating(
+        // استفاده از setExactAndAllowWhileIdle برای دقت بیشتر
+        alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             reminder.nextReminderTime,
-            intervalMillis,
             pendingIntent
         )
     }
 
     fun cancelReminder(context: Context, reminderId: Int) {
+        // لغو کار WorkManager
         WorkManager.getInstance(context).cancelAllWorkByTag("reminder_$reminderId")
+
+        //  لغو آلارم
+        val intent = Intent(context, ReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            reminderId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+
     }
 
 }

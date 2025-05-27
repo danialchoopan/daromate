@@ -12,9 +12,9 @@ object DateTimeUtils {
         val date = Date(timestamp)
 
         val persianDate = PersianDate(date)
-        val dayOfWeek = persianDate.dayName() // مثلاً "شنبه"
-        val day = persianDate.shDay            // مثلاً 14
-        val month = persianDate.monthName()    // مثلاً "اردیبهشت"
+        val dayOfWeek = persianDate.dayName()
+        val day = persianDate.shDay
+        val month = persianDate.monthName()
         val hour = persianDate.hour
         val minute = persianDate.minute
 
@@ -30,13 +30,10 @@ object DateTimeUtils {
     }
 
     fun getCurrentTime24HourFormat(): String {
-        // Get the current date and time
         val currentDateTime = LocalDateTime.now()
 
-        // Define the desired format pattern (HH for 24-hour format hour)
         val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
-        // Format the current date and time using the pattern
         val formattedTime = currentDateTime.format(formatter)
 
         return formattedTime

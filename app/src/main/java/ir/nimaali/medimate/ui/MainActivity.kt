@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Create notification channel
+        // ساخت کانال نوتیفیکشن
         NotificationUtils.createNotificationChannel(this)
 
         setContent {
