@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace 'ir.nimaali.medimate'
+    namespace 'ir.danialchoopan.medimate'
     compileSdk 35
 
     defaultConfig {
