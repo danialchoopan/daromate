@@ -18,6 +18,6 @@
 
 
 ### Screenshot اسکرین شات
-<img src="1.png" height="500">
+<img src="1.jpg" height="500">
 <br>
-<img src="2.png" height="500">
+<img src="2.jpg" height="500">
