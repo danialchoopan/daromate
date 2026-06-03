@@ -38,6 +38,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+            android:enabled="true"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:enabled" />
+
     </application>
 
 </manifest>

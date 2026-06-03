@@ -1,10 +1,13 @@
-package ir.nimaali.medimate.app
+package ir.danialchoopan.medimate.app
 
 import android.app.Application
-import ir.nimaali.medimate.data.AppDatabase
+import dagger.hilt.android.HiltAndroidApp
+import ir.danialchoopan.medimate.util.NotificationUtils
 
+@HiltAndroidApp
 class MedicineApplication : Application() {
-    val database: AppDatabase by lazy {
-        AppDatabase.getInstance(this)
+    override fun onCreate() {
+        super.onCreate()
+        NotificationUtils.createNotificationChannel(this)
     }
 }

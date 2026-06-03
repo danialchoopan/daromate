@@ -1,48 +1,59 @@
-package ir.nimaali.medimate.util
+package ir.danialchoopan.medimate.util
 
-
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import ir.nimaali.medimate.R
+import ir.danialchoopan.medimate.R
 
 object NotificationUtils {
-    const val CHANNEL_ID = "medicine_reminder_channel"
-    const val NOTIFICATION_ID = 1
+    private const val CHANNEL_ID = "medicine_reminder_channel"
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = context.getString(R.string.channel_name)
-            val descriptionText = context.getString(R.string.channel_description)
+            val name = "Medicine Reminders"
+            val descriptionText = "Notifications for medication reminders"
             val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }
-
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
 
-    @SuppressLint("MissingPermission", "NotificationPermission")
-    fun showNotification(context: Context, medicineName: String, reminderTime: Long) {
-        val persianDateTime = DateTimeUtils.timestampToPersianDateTime(reminderTime)
+    fun showActionableNotification(context: Context, reminderId: Int, medicineName: String) {
+        val takenIntent = Intent(context, ReminderReceiver::class.java).apply {
+            action = "ACTION_TAKEN"
+            putExtra("reminderId", reminderId)
+        }
+        val takenPendingIntent = PendingIntent.getBroadcast(context, reminderId + 1000, takenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        val snoozeIntent = Intent(context, ReminderReceiver::class.java).apply {
+            action = "ACTION_SNOOZE"
+            putExtra("reminderId", reminderId)
+            putExtra("medicineName", medicineName)
+        }
+        val snoozePendingIntent = PendingIntent.getBroadcast(context, reminderId + 2000, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.baseline_medication_liquid_24_green)
-            .setContentTitle("یادآوری مصرف دارو")
-            .setContentText("زمان مصرف $medicineName  فرا رسیده است \n" +
-                    "  ($persianDateTime)")
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm) // Use standard icon for now
+            .setContentTitle("Medicine Reminder")
+            .setContentText("It's time to take your $medicineName")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
+            .addAction(0, "Taken", takenPendingIntent)
+            .addAction(0, "Snooze (10m)", snoozePendingIntent)
 
-        with(NotificationManagerCompat.from(context)) {
-            notify(NOTIFICATION_ID, builder.build())
-        }
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(reminderId, builder.build())
+    }
+
+    fun cancelNotification(context: Context, notificationId: Int) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(notificationId)
     }
 }

@@ -1,4 +1,4 @@
-package ir.nimaali.medimate.util
+package ir.danialchoopan.medimate.util
 
 import saman.zamani.persiandate.PersianDate
 import java.time.LocalDateTime

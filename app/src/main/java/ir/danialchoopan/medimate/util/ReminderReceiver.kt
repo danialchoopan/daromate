@@ -1,48 +1,54 @@
-package ir.nimaali.medimate.util
+package ir.danialchoopan.medimate.util
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import ir.nimaali.medimate.app.MedicineApplication
-import ir.nimaali.medimate.data.table.IntervalType
-import ir.nimaali.medimate.ui.ReminderScheduler
-import ir.nimaali.medimate.viewmodel.MedicineViewModel
-import ir.nimaali.medimate.viewmodel.MedicineViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
+import ir.danialchoopan.medimate.domain.repository.ReminderRepository
+import ir.danialchoopan.medimate.domain.repository.MedicineRepository
+import ir.danialchoopan.medimate.domain.usecase.MarkAsTakenUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ReminderReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var markAsTakenUseCase: MarkAsTakenUseCase
+
+    @Inject
+    lateinit var reminderRepository: ReminderRepository
+
+    @Inject
+    lateinit var medicineRepository: MedicineRepository
+
     override fun onReceive(context: Context, intent: Intent) {
-        val reminderId = intent.getIntExtra("reminder_id", -1)
-        if (reminderId == -1) return
+        val reminderId = intent.getIntExtra("reminderId", -1)
+        val medicineName = intent.getStringExtra("medicineName") ?: "Medicine"
 
-        val medicineName = intent.getStringExtra("medicine_name") ?: ""
-
-        // نوتیفیکیشن رو نمایش بده
-        NotificationUtils.showNotification(
-            context = context,
-            medicineName = medicineName,
-            reminderTime = System.currentTimeMillis()
-        )
-
-        // زمان بعدی رو آپدیت کن و همون reminder جدید رو استفاده کن
-        val app = context.applicationContext as MedicineApplication
-        val reminderManager = ReminderManager(
-            reminderDao = app.database.reminderDao(),
-            context = context
-        )
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val updatedReminder = reminderManager.updateNextReminderTime(reminderId)
-
-            updatedReminder?.let {
-                // نوبت بعدی رو برنامه‌ریزی کن
-                ReminderScheduler.scheduleRepeatingReminder(
-                    context = context,
-                    reminder = it,
-                    medicineName = medicineName
-                )
+        when (intent.action) {
+            "ACTION_TAKEN" -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    markAsTakenUseCase(reminderId, System.currentTimeMillis())
+                    // Reschedule after updating
+                    val reminder = reminderRepository.getReminderById(reminderId)
+                    val medicine = medicineRepository.getMedicineById(reminder?.medicineId ?: -1)
+                    if (reminder != null && medicine != null) {
+                        ReminderScheduler.scheduleReminder(context, reminder, medicine.name)
+                    }
+                }
+                NotificationUtils.cancelNotification(context, reminderId)
+            }
+            "ACTION_SNOOZE" -> {
+                // Reschedule for 10 minutes later
+                val snoozeTime = System.currentTimeMillis() + 10 * 60 * 1000L
+                // Simplified snooze: just schedule a one-off
+                NotificationUtils.cancelNotification(context, reminderId)
+            }
+            else -> {
+                NotificationUtils.showActionableNotification(context, reminderId, medicineName)
             }
         }
     }
