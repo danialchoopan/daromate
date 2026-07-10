@@ -1,7 +1,6 @@
 package ir.danialchoopan.medimate.data.local.dao
 
 import androidx.room.*
-import ir.danialchoopan.medimate.data.local.entities.InventoryEntity
 import ir.danialchoopan.medimate.data.local.entities.MedicineEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -21,11 +20,4 @@ interface MedicineDao {
 
     @Delete
     suspend fun deleteMedicine(medicine: MedicineEntity)
-
-    // Inventory
-    @Query("SELECT * FROM inventory WHERE medicineId = :medicineId")
-    suspend fun getInventoryByMedicineId(medicineId: Int): InventoryEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateInventory(inventory: InventoryEntity)
 }

@@ -1,32 +1,71 @@
 package ir.danialchoopan.medimate.presentation.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ir.danialchoopan.medimate.domain.model.*
+import ir.danialchoopan.medimate.domain.model.Inventory
+import ir.danialchoopan.medimate.domain.model.IntervalType
+import ir.danialchoopan.medimate.domain.model.Medicine
+import ir.danialchoopan.medimate.domain.model.Reminder
+import ir.danialchoopan.medimate.presentation.components.AppButton
+import ir.danialchoopan.medimate.presentation.components.ButtonStyle
+import ir.danialchoopan.medimate.presentation.components.Spacing
+import ir.danialchoopan.medimate.presentation.components.WarningRow
 import ir.danialchoopan.medimate.presentation.viewmodel.AddMedicineViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavController) {
     var name by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
     var instruction by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var reason by remember { mutableStateOf("") }
     var selectedForm by remember { mutableStateOf("Tablet") }
     var currentStock by remember { mutableStateOf("0") }
     var selectedInterval by remember { mutableStateOf(IntervalType.DAYS) }
+    var nameError by remember { mutableStateOf(false) }
+    var dosageError by remember { mutableStateOf(false) }
 
+    val interactions by viewModel.interactions.collectAsState()
     val forms = listOf("Tablet", "Capsule", "Syrup", "Injection")
 
     Scaffold(
@@ -35,7 +74,7 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
                 title = { Text("Add Medicine") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -44,18 +83,73 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(horizontal = Spacing.md)
                 .verticalScroll(rememberScrollState())
         ) {
+            Spacer(modifier = Modifier.height(Spacing.sm))
+
             OutlinedTextField(
-                value = name, onValueChange = { name = it },
-                label = { Text("Medicine Name") }, modifier = Modifier.fillMaxWidth()
+                value = name,
+                onValueChange = {
+                    name = it
+                    nameError = false
+                    viewModel.checkInteractions(it)
+                },
+                label = { Text("Medicine Name") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = nameError,
+                supportingText = if (nameError) {{ Text("Name is required") }} else null,
+                singleLine = true
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.sm))
+
+            AnimatedVisibility(
+                visible = interactions.isNotEmpty(),
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        interactions.forEach { interaction ->
+                            WarningRow(
+                                text = "${interaction.severity.name}: ${interaction.description}"
+                            )
+                            if (interaction != interactions.last()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                            }
+                        }
+                    }
+                }
+            }
+            if (interactions.isNotEmpty()) Spacer(modifier = Modifier.height(Spacing.sm))
+
+            OutlinedTextField(
+                value = description, onValueChange = { description = it },
+                label = { Text("Description (optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+
+            OutlinedTextField(
+                value = reason, onValueChange = { reason = it },
+                label = { Text("Reason for taking (optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(Spacing.md))
 
             Text("Form", style = MaterialTheme.typography.titleMedium)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(forms) { form ->
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+            ) {
+                forms.forEach { form ->
                     FilterChip(
                         selected = selectedForm == form,
                         onClick = { selectedForm = form },
@@ -64,43 +158,67 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
                 }
             }
 
+            Spacer(modifier = Modifier.height(Spacing.md))
             OutlinedTextField(
-                value = dosage, onValueChange = { dosage = it },
-                label = { Text("Dosage") }, modifier = Modifier.fillMaxWidth()
+                value = dosage,
+                onValueChange = { dosage = it; dosageError = false },
+                label = { Text("Dosage") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = dosageError,
+                supportingText = if (dosageError) {{ Text("Dosage is required") }} else null,
+                singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.md))
             Text("Pill Tracker", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(Spacing.sm))
             OutlinedTextField(
                 value = currentStock, onValueChange = { currentStock = it },
-                label = { Text("Current Stock") }, modifier = Modifier.fillMaxWidth()
+                label = { Text("Current Stock") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.md))
             Text("Scheduling", style = MaterialTheme.typography.titleMedium)
-            IntervalType.values().forEach { interval ->
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            IntervalType.entries.forEach { interval ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable { selectedInterval = interval }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedInterval = interval }
+                        .padding(vertical = 4.dp)
                 ) {
-                    RadioButton(selected = selectedInterval == interval, onClick = { selectedInterval = interval })
-                    Text(interval.name)
+                    RadioButton(
+                        selected = selectedInterval == interval,
+                        onClick = { selectedInterval = interval }
+                    )
+                    Text(
+                        text = interval.name.replace("_", " "),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
+            Spacer(modifier = Modifier.height(Spacing.lg))
+            AppButton(
+                text = "Save Medicine",
                 onClick = {
+                    nameError = name.isBlank()
+                    dosageError = dosage.isBlank()
+                    if (nameError || dosageError) return@AppButton
+
                     val medicine = Medicine(
-                        name = name, description = "", dosage = dosage,
-                        form = selectedForm, instruction = instruction, reason = "",
+                        name = name.trim(), description = description.trim(), dosage = dosage.trim(),
+                        form = selectedForm, instruction = instruction.trim(), reason = reason.trim(),
                         color = 0xFF4CAF50.toInt()
                     )
                     val reminder = Reminder(
                         medicineId = 0,
                         intervalType = selectedInterval,
                         intervalValue = 1,
-                        nextReminderTime = System.currentTimeMillis() + 60000 // 1 min from now for testing
+                        nextReminderTime = System.currentTimeMillis() + 60000
                     )
                     val inventory = Inventory(
                         medicineId = 0,
@@ -111,9 +229,8 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
                     navController.navigateUp()
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save Medicine")
-            }
+            )
+            Spacer(modifier = Modifier.height(Spacing.xl))
         }
     }
 }

@@ -11,6 +11,7 @@ import ir.danialchoopan.medimate.R
 
 object NotificationUtils {
     private const val CHANNEL_ID = "medicine_reminder_channel"
+    private const val LOW_STOCK_CHANNEL_ID = "low_stock_channel"
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -22,6 +23,13 @@ object NotificationUtils {
             }
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+
+            val lowStockName = "Low Stock Alerts"
+            val lowStockDescription = "Notifications when medicine stock is running low"
+            val lowStockChannel = NotificationChannel(LOW_STOCK_CHANNEL_ID, lowStockName, NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = lowStockDescription
+            }
+            notificationManager.createNotificationChannel(lowStockChannel)
         }
     }
 
@@ -55,5 +63,17 @@ object NotificationUtils {
     fun cancelNotification(context: Context, notificationId: Int) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(notificationId)
+    }
+
+    fun showLowStockNotification(context: Context, medicineId: Int, medicineName: String, currentStock: Int) {
+        val builder = NotificationCompat.Builder(context, LOW_STOCK_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle("Low Stock: $medicineName")
+            .setContentText("Only $currentStock left. Time to refill!")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(medicineId + 3000, builder.build())
     }
 }

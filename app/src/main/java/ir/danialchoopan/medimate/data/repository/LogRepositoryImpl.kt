@@ -2,7 +2,6 @@ package ir.danialchoopan.medimate.data.repository
 
 import ir.danialchoopan.medimate.data.local.dao.MedicationLogDao
 import ir.danialchoopan.medimate.data.local.entities.MedicationLogEntity
-import ir.danialchoopan.medimate.domain.model.LogStatus
 import ir.danialchoopan.medimate.domain.model.MedicationLog
 import ir.danialchoopan.medimate.domain.repository.LogRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,10 +20,10 @@ class LogRepositoryImpl(private val logDao: MedicationLogDao) : LogRepository {
     override suspend fun updateLog(log: MedicationLog) = logDao.updateLog(log.toEntity())
 
     private fun MedicationLogEntity.toDomain() = MedicationLog(
-        id, medicineId, reminderTime, takenTime, LogStatus.valueOf(status)
+        id, medicineId, reminderTime, takenTime, status
     )
 
     private fun MedicationLog.toEntity() = MedicationLogEntity(
-        id, medicineId, reminderTime, takenTime, status.name
+        id, medicineId, reminderTime, takenTime, status
     )
 }

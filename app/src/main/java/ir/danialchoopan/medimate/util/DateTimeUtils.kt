@@ -24,9 +24,10 @@ object DateTimeUtils {
     fun timestampToPersianDateTime(timestamp: Long): String {
         val date = Date(timestamp)
         val persianDate = PersianDate(date)
-        val timeIn24Hour = getCurrentTime24HourFormat()
+        val hour = persianDate.hour
+        val minute = persianDate.minute
 
-        return "${persianDate.toString()} - ${timeIn24Hour}"
+        return "${persianDate.toString()} - %02d:%02d".format(hour, minute)
     }
 
     fun getCurrentTime24HourFormat(): String {

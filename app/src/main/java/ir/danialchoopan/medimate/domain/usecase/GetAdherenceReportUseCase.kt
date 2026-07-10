@@ -4,6 +4,7 @@ import ir.danialchoopan.medimate.domain.model.LogStatus
 import ir.danialchoopan.medimate.domain.repository.LogRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 data class AdherenceReport(
     val totalExpected: Int,
@@ -11,7 +12,7 @@ data class AdherenceReport(
     val adherenceRate: Float
 )
 
-class GetAdherenceReportUseCase(
+class GetAdherenceReportUseCase @Inject constructor(
     private val logRepository: LogRepository
 ) {
     operator fun invoke(): Flow<AdherenceReport> {

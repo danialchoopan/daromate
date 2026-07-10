@@ -24,12 +24,12 @@ class ReminderRepositoryImpl(private val reminderDao: ReminderDao) : ReminderRep
     override suspend fun deleteReminder(reminder: Reminder) = reminderDao.deleteReminder(reminder.toEntity())
 
     private fun ReminderEntity.toDomain() = Reminder(
-        id, medicineId, IntervalType.valueOf(intervalType), intervalValue,
+        id, medicineId, intervalType, intervalValue,
         nextReminderTime, isActive, cycleOnDays, cycleOffDays
     )
 
     private fun Reminder.toEntity() = ReminderEntity(
-        id, medicineId, intervalType.name, intervalValue,
+        id, medicineId, intervalType, intervalValue,
         nextReminderTime, isActive, cycleOnDays, cycleOffDays
     )
 }

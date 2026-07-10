@@ -14,7 +14,7 @@ import javax.inject.Singleton
 object RepositoryModule {
     @Provides
     @Singleton
-    fun provideMedicineRepository(dao: MedicineDao): MedicineRepository = MedicineRepositoryImpl(dao)
+    fun provideMedicineRepository(medDao: MedicineDao, invDao: InventoryDao): MedicineRepository = MedicineRepositoryImpl(medDao, invDao)
 
     @Provides
     @Singleton
@@ -23,4 +23,8 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideLogRepository(dao: MedicationLogDao): LogRepository = LogRepositoryImpl(dao)
+
+    @Provides
+    @Singleton
+    fun provideDrugInteractionRepository(dao: DrugInteractionDao): DrugInteractionRepository = DrugInteractionRepositoryImpl(dao)
 }

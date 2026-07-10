@@ -6,8 +6,9 @@ import ir.danialchoopan.medimate.domain.repository.LogRepository
 import ir.danialchoopan.medimate.domain.repository.MedicineRepository
 import ir.danialchoopan.medimate.domain.repository.ReminderRepository
 import ir.danialchoopan.medimate.util.ReminderScheduler
+import javax.inject.Inject
 
-class MarkAsTakenUseCase(
+class MarkAsTakenUseCase @Inject constructor(
     private val medicineRepository: MedicineRepository,
     private val reminderRepository: ReminderRepository,
     private val logRepository: LogRepository

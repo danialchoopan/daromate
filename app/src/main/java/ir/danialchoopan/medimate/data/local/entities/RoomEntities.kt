@@ -1,7 +1,10 @@
 package ir.danialchoopan.medimate.data.local.entities
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import ir.danialchoopan.medimate.domain.model.IntervalType
+import ir.danialchoopan.medimate.domain.model.LogStatus
 
 @Entity(tableName = "medicines")
 data class MedicineEntity(
@@ -16,18 +19,38 @@ data class MedicineEntity(
     val color: Int
 )
 
-@Entity(tableName = "inventory")
+@Entity(
+    tableName = "inventory",
+    foreignKeys = [
+        ForeignKey(
+            entity = MedicineEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["medicineId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class InventoryEntity(
     @PrimaryKey val medicineId: Int,
     val currentStock: Int,
     val lowStockThreshold: Int
 )
 
-@Entity(tableName = "reminders")
+@Entity(
+    tableName = "reminders",
+    foreignKeys = [
+        ForeignKey(
+            entity = MedicineEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["medicineId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class ReminderEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val medicineId: Int,
-    val intervalType: String, // String representation of IntervalType enum
+    val intervalType: IntervalType,
     val intervalValue: Int,
     val nextReminderTime: Long,
     val isActive: Boolean,
@@ -35,11 +58,21 @@ data class ReminderEntity(
     val cycleOffDays: Int
 )
 
-@Entity(tableName = "medication_logs")
+@Entity(
+    tableName = "medication_logs",
+    foreignKeys = [
+        ForeignKey(
+            entity = MedicineEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["medicineId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class MedicationLogEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val medicineId: Int,
     val reminderTime: Long,
     val takenTime: Long?,
-    val status: String // TAKEN, MISSED, SNOOZED
+    val status: LogStatus
 )
