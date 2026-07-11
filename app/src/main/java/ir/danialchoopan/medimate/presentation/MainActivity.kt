@@ -8,12 +8,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
+import ir.danialchoopan.medimate.presentation.viewmodel.SettingsViewModel
+import ir.danialchoopan.medimate.presentation.viewmodel.dataStore
 import ir.danialchoopan.medimate.presentation.theme.MedicineReminderTheme
+import kotlinx.coroutines.flow.map
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,10 +31,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         requestNotificationPermission()
         setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                MedicineReminderTheme {
-                    MedicineReminderApp()
+            val context = LocalContext.current
+            val isDarkMode by remember {
+                context.dataStore.data.map { preferences ->
+                    preferences[SettingsViewModel.DARK_MODE_KEY] ?: false
                 }
+            }.collectAsState(initial = false)
+
+            MedicineReminderTheme(darkTheme = isDarkMode) {
+                MedicineReminderApp()
             }
         }
     }

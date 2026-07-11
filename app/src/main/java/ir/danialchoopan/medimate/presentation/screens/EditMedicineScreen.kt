@@ -1,11 +1,7 @@
 package ir.danialchoopan.medimate.presentation.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -15,14 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -35,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,13 +59,13 @@ fun EditMedicineScreen(
     var instruction by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var reason by remember { mutableStateOf("") }
-    var selectedForm by remember { mutableStateOf("Tablet") }
+    var selectedForm by remember { mutableStateOf("قرص") }
     var selectedInterval by remember { mutableStateOf(IntervalType.DAYS) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val forms = listOf("Tablet", "Capsule", "Syrup", "Injection")
+    val forms = listOf("قرص", "کپسول", "شربت", "تزریق")
 
-    androidx.compose.runtime.LaunchedEffect(medicine) {
+    LaunchedEffect(medicine) {
         medicine?.let {
             name = it.name
             dosage = it.dosage
@@ -84,17 +79,17 @@ fun EditMedicineScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Medicine") },
+                title = { Text("ویرایش دارو") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
                     }
                 },
                 actions = {
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = "حذف",
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -113,7 +108,7 @@ fun EditMedicineScreen(
 
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    label = { Text("Medicine Name") },
+                    label = { Text("نام دارو") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -121,7 +116,7 @@ fun EditMedicineScreen(
 
                 OutlinedTextField(
                     value = description, onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text("توضیحات") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -129,13 +124,13 @@ fun EditMedicineScreen(
 
                 OutlinedTextField(
                     value = reason, onValueChange = { reason = it },
-                    label = { Text("Reason for taking") },
+                    label = { Text("دلیل مصرف") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 Spacer(modifier = Modifier.height(Spacing.md))
 
-                Text("Form", style = MaterialTheme.typography.titleMedium)
+                Text("شکل", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(Spacing.sm))
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
@@ -152,15 +147,24 @@ fun EditMedicineScreen(
                 Spacer(modifier = Modifier.height(Spacing.md))
                 OutlinedTextField(
                     value = dosage, onValueChange = { dosage = it },
-                    label = { Text("Dosage") },
+                    label = { Text("دوز") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(Spacing.md))
-                Text("Scheduling", style = MaterialTheme.typography.titleMedium)
+                Text("زمانبندی", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(Spacing.sm))
                 IntervalType.entries.forEach { interval ->
+                    val label = when(interval) {
+                        IntervalType.MINUTES -> "دقیقه"
+                        IntervalType.HOURS -> "ساعتی"
+                        IntervalType.DAYS -> "روزانه"
+                        IntervalType.WEEKS -> "هفتگی"
+                        IntervalType.EVEN_DAYS -> "روزهای زوج"
+                        IntervalType.ODD_DAYS -> "روزهای فرد"
+                        IntervalType.CYCLE -> "چرخه‌ای"
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -173,7 +177,7 @@ fun EditMedicineScreen(
                             onClick = { selectedInterval = interval }
                         )
                         Text(
-                            text = interval.name.replace("_", " "),
+                            text = label,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -181,7 +185,7 @@ fun EditMedicineScreen(
 
                 Spacer(modifier = Modifier.height(Spacing.lg))
                 AppButton(
-                    text = "Update Medicine",
+                    text = "به‌روزرسانی",
                     onClick = {
                         val updated = medicine!!.copy(
                             name = name, description = description, dosage = dosage,
@@ -195,7 +199,7 @@ fun EditMedicineScreen(
 
                 Spacer(modifier = Modifier.height(Spacing.sm))
                 AppButton(
-                    text = "Delete Medicine",
+                    text = "حذف دارو",
                     onClick = { showDeleteDialog = true },
                     style = ButtonStyle.Secondary,
                     modifier = Modifier.fillMaxWidth()
@@ -208,20 +212,20 @@ fun EditMedicineScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Medicine") },
-            text = { Text("Are you sure you want to delete ${medicine?.name}? This action cannot be undone.") },
+            title = { Text("حذف دارو") },
+            text = { Text("آیا از حذف ${medicine?.name} مطمئنید؟ این عمل قابل بازگشت نیست.") },
             confirmButton = {
                 TextButton(onClick = {
                     medicine?.let { viewModel.deleteMedicine(it) }
                     showDeleteDialog = false
                     navController.navigateUp()
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text("حذف", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text("انصراف")
                 }
             }
         )

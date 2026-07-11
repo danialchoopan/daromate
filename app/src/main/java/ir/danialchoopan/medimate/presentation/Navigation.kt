@@ -9,14 +9,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -38,16 +38,19 @@ sealed class Screen(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
-    data object Dashboard : Screen("dashboard", "Home", Icons.Filled.Home, Icons.Outlined.Home)
-    data object AddMedicine : Screen("add_medicine", "Add", Icons.Filled.Add, Icons.Outlined.Add)
-    data object History : Screen("history", "History", Icons.Filled.List, Icons.Filled.List)
-    data object EditMedicine : Screen("edit_medicine/{medicineId}", "Edit", Icons.Filled.Home, Icons.Outlined.Home)
+    data object Dashboard : Screen("dashboard", "خانه", Icons.Filled.Home, Icons.Filled.Home)
+    data object AddMedicine : Screen("add_medicine", "افزودن", Icons.Filled.Add, Icons.Filled.Add)
+    data object History : Screen("history", "تاریخچه", Icons.Filled.List, Icons.Filled.List)
+    data object Settings : Screen("settings", "تنظیمات", Icons.Filled.Settings, Icons.Filled.Settings)
+    data object EditMedicine : Screen("edit_medicine/{medicineId}", "ویرایش", Icons.Filled.Home, Icons.Filled.Home)
 }
 
-private val bottomBarScreens = listOf(Screen.Dashboard, Screen.AddMedicine, Screen.History)
+private val bottomBarScreens = listOf(Screen.Dashboard, Screen.AddMedicine, Screen.History, Screen.Settings)
 
 @Composable
-fun MedicineReminderApp() {
+fun MedicineReminderApp(
+    isDarkMode: Boolean = false
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -121,13 +124,24 @@ fun MedicineReminderApp() {
                 val viewModel: HistoryViewModel = hiltViewModel()
                 HistoryScreen(viewModel = viewModel)
             }
-            composable(
-                route = Screen.EditMedicine.route,
-                arguments = listOf(navArgument("medicineId") { type = NavType.IntType })
-            ) { backStackEntry ->
+            composable(Screen.Settings.route) {
+                val viewModel: SettingsViewModel = hiltViewModel()
+                SettingsScreen(viewModel = viewModel, navController = navController)
+            }
+            composable(Screen.EditMedicine.route) { backStackEntry ->
                 val medicineId = backStackEntry.arguments?.getInt("medicineId") ?: return@composable
                 val viewModel: AddMedicineViewModel = hiltViewModel()
                 EditMedicineScreen(medicineId = medicineId, viewModel = viewModel, navController = navController)
+            }
+            composable("about") {
+                AboutScreen(navController = navController)
+            }
+            composable("onboarding") {
+                OnboardingScreen(onFinish = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo("onboarding") { inclusive = true }
+                    }
+                })
             }
         }
     }

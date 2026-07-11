@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
@@ -41,7 +39,7 @@ fun DashboardScreen(viewModel: DashboardViewModel, navController: androidx.navig
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("Daily Timeline") },
+                title = { Text("برنامه روزانه") },
                 scrollBehavior = scrollBehavior
             )
         }
@@ -54,8 +52,8 @@ fun DashboardScreen(viewModel: DashboardViewModel, navController: androidx.navig
             if (isEmpty) {
                 EmptyStateView(
                     icon = Icons.Filled.DateRange,
-                    title = "No reminders yet",
-                    message = "Tap + to add your first medicine and set up reminders.",
+                    title = "هنوز یادآوری برایتان نیست",
+                    message = "برای اضافه اولین داروی خود روی + کلیک کنید.",
                     modifier = Modifier.padding(padding)
                 )
             } else {

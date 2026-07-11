@@ -21,7 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -66,7 +66,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                     putExtra(Intent.EXTRA_STREAM, state.uri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                shareLauncher.launch(Intent.createChooser(shareIntent, "Share Medication History"))
+                shareLauncher.launch(Intent.createChooser(shareIntent, "اشتراک گزارش دارویی"))
                 viewModel.resetExportState()
             }
             else -> {}
@@ -77,11 +77,11 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("Adherence History") },
+                title = { Text("گزارش پایبندی") },
                 scrollBehavior = scrollBehavior,
                 actions = {
                     IconButton(onClick = { viewModel.exportHistory() }) {
-                        Icon(Icons.Outlined.Share, contentDescription = "Export CSV")
+                        Icon(Icons.Default.Share, contentDescription = "خروجی")
                     }
                 }
             )
@@ -102,7 +102,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                 ) {
                     Column(modifier = Modifier.padding(Spacing.md)) {
                         Text(
-                            "Adherence Rate",
+                            "نرخ پایبندی",
                             style = MaterialTheme.typography.titleMedium
                         )
                         Spacer(modifier = Modifier.height(Spacing.xs))
@@ -116,14 +116,14 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column {
-                                Text("Expected", style = MaterialTheme.typography.labelMedium)
+                                Text("مورد", style = MaterialTheme.typography.labelMedium)
                                 Text(
                                     "${report.totalExpected}",
                                     style = MaterialTheme.typography.titleMedium
                                 )
                             }
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("Taken", style = MaterialTheme.typography.labelMedium)
+                                Text("مصرف شده", style = MaterialTheme.typography.labelMedium)
                                 Text(
                                     "${report.totalTaken}",
                                     style = MaterialTheme.typography.titleMedium
@@ -133,7 +133,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                     }
                 }
                 Spacer(modifier = Modifier.height(Spacing.md))
-                Text("Medication Logs", style = MaterialTheme.typography.titleLarge)
+                Text("تاریخچه دارویی", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(Spacing.sm))
             }
 
@@ -146,8 +146,8 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                     if (isEmpty) {
                         EmptyStateView(
                             icon = Icons.Filled.Info,
-                            title = "No logs yet",
-                            message = "Your medication history will appear here after you start tracking.",
+                            title = "هنوز لاگ ثبت نشده است.",
+                            message = "تاریخچه اطلاعات دارویی شما در اینجا نمایان خواهد داد.",
                             modifier = Modifier.height(200.dp)
                         )
                     }
@@ -160,10 +160,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
             ) { log ->
                 AppCard(
                     elevation = 0.dp,
-                    borderStroke = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.outlineVariant
-                    )
+                    borderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Row(
@@ -180,7 +177,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                         if (log.takenTime != null) {
                             Spacer(modifier = Modifier.height(Spacing.xs))
                             Text(
-                                text = "Taken at: ${DateTimeUtils.timestampToPersianDate(log.takenTime)}",
+                                text = "مصرف شده: ${DateTimeUtils.timestampToPersianDate(log.takenTime)}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

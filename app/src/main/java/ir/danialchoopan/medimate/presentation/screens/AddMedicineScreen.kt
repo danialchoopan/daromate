@@ -14,14 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -47,7 +43,7 @@ import ir.danialchoopan.medimate.domain.model.IntervalType
 import ir.danialchoopan.medimate.domain.model.Medicine
 import ir.danialchoopan.medimate.domain.model.Reminder
 import ir.danialchoopan.medimate.presentation.components.AppButton
-import ir.danialchoopan.medimate.presentation.components.ButtonStyle
+import ir.danialchoopan.medimate.presentation.components.ErrorCard
 import ir.danialchoopan.medimate.presentation.components.Spacing
 import ir.danialchoopan.medimate.presentation.components.WarningRow
 import ir.danialchoopan.medimate.presentation.viewmodel.AddMedicineViewModel
@@ -60,22 +56,22 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
     var instruction by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var reason by remember { mutableStateOf("") }
-    var selectedForm by remember { mutableStateOf("Tablet") }
+    var selectedForm by remember { mutableStateOf("قرص") }
     var currentStock by remember { mutableStateOf("0") }
     var selectedInterval by remember { mutableStateOf(IntervalType.DAYS) }
     var nameError by remember { mutableStateOf(false) }
     var dosageError by remember { mutableStateOf(false) }
 
     val interactions by viewModel.interactions.collectAsState()
-    val forms = listOf("Tablet", "Capsule", "Syrup", "Injection")
+    val forms = listOf("قرص", "کپسول", "شربت", "تزریق")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Medicine") },
+                title = { Text("افزودن دارو") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
                     }
                 }
             )
@@ -96,10 +92,10 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
                     nameError = false
                     viewModel.checkInteractions(it)
                 },
-                label = { Text("Medicine Name") },
+                label = { Text("نام دارو") },
                 modifier = Modifier.fillMaxWidth(),
                 isError = nameError,
-                supportingText = if (nameError) {{ Text("Name is required") }} else null,
+                supportingText = if (nameError) {{ Text("نام الزامی است") }} else null,
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(Spacing.sm))
@@ -109,20 +105,13 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        interactions.forEach { interaction ->
-                            WarningRow(
-                                text = "${interaction.severity.name}: ${interaction.description}"
-                            )
-                            if (interaction != interactions.last()) {
-                                Spacer(modifier = Modifier.height(4.dp))
-                            }
+                ErrorCard(isVisible = true) {
+                    interactions.forEach { interaction ->
+                        WarningRow(
+                            text = "${interaction.severity.name}: ${interaction.description}"
+                        )
+                        if (interaction != interactions.last()) {
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
                 }
@@ -131,7 +120,7 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
 
             OutlinedTextField(
                 value = description, onValueChange = { description = it },
-                label = { Text("Description (optional)") },
+                label = { Text("توضیحات (اختیاری)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -139,13 +128,13 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
 
             OutlinedTextField(
                 value = reason, onValueChange = { reason = it },
-                label = { Text("Reason for taking (optional)") },
+                label = { Text("دلیل مصرف (اختیاری)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(Spacing.md))
 
-            Text("Form", style = MaterialTheme.typography.titleMedium)
+            Text("شکل", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(Spacing.sm))
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
@@ -163,27 +152,36 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
             OutlinedTextField(
                 value = dosage,
                 onValueChange = { dosage = it; dosageError = false },
-                label = { Text("Dosage") },
+                label = { Text("دوز") },
                 modifier = Modifier.fillMaxWidth(),
                 isError = dosageError,
-                supportingText = if (dosageError) {{ Text("Dosage is required") }} else null,
+                supportingText = if (dosageError) {{ Text("دوز الزامی است") }} else null,
                 singleLine = true
             )
 
             Spacer(modifier = Modifier.height(Spacing.md))
-            Text("Pill Tracker", style = MaterialTheme.typography.titleMedium)
+            Text("ربعت انبادگیری", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(Spacing.sm))
             OutlinedTextField(
                 value = currentStock, onValueChange = { currentStock = it },
-                label = { Text("Current Stock") },
+                label = { Text("تعداد کنونی") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
             Spacer(modifier = Modifier.height(Spacing.md))
-            Text("Scheduling", style = MaterialTheme.typography.titleMedium)
+            Text("زمانبندی", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(Spacing.sm))
             IntervalType.entries.forEach { interval ->
+                val label = when(interval) {
+                    IntervalType.MINUTES -> "دقیقه"
+                    IntervalType.HOURS -> "ساعتی"
+                    IntervalType.DAYS -> "روزانه"
+                    IntervalType.WEEKS -> "هفتگی"
+                    IntervalType.EVEN_DAYS -> "روزهای زوج"
+                    IntervalType.ODD_DAYS -> "روزهای فرد"
+                    IntervalType.CYCLE -> "چرخه‌ای"
+                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -196,7 +194,7 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
                         onClick = { selectedInterval = interval }
                     )
                     Text(
-                        text = interval.name.replace("_", " "),
+                        text = label,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -204,7 +202,7 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
 
             Spacer(modifier = Modifier.height(Spacing.lg))
             AppButton(
-                text = "Save Medicine",
+                text = "ذخیره دارو",
                 onClick = {
                     nameError = name.isBlank()
                     dosageError = dosage.isBlank()
