@@ -35,14 +35,27 @@ class ReminderReceiver : BroadcastReceiver() {
                 when (intent.action) {
                     "ACTION_TAKEN" -> handleTaken(context, intent)
                     "ACTION_SNOOZE" -> handleSnooze(context, intent)
+                    "ACTION_DISMISS" -> handleDismiss(context, intent)
                     Intent.ACTION_BOOT_COMPLETED,
+                    Intent.ACTION_MY_PACKAGE_REPLACED,
                     Intent.ACTION_TIMEZONE_CHANGED,
                     Intent.ACTION_TIME_CHANGED -> handleBootCompleted(context)
                     else -> {
                         val reminderId = intent.getIntExtra("reminderId", -1)
-                        val medicineName = intent.getStringExtra("medicineName") ?: "Medicine"
+                        val medicineName = intent.getStringExtra("medicineName") ?: "دارو"
                         if (reminderId != -1) {
-                            NotificationUtils.showActionableNotification(context, reminderId, medicineName)
+                            // Get medicine details for better notification
+                            val reminder = reminderRepository.getReminderById(reminderId)
+                            val medicine = reminder?.let { medicineRepository.getMedicineById(it.medicineId) }
+
+                            NotificationUtils.showMedicineReminder(
+                                context = context,
+                                reminderId = reminderId,
+                                medicineName = medicineName,
+                                dosage = medicine?.dosage ?: "",
+                                instruction = medicine?.instruction ?: ""
+                            )
+                            NotificationUtils.vibrateDevice(context)
                         }
                     }
                 }
@@ -67,11 +80,12 @@ class ReminderReceiver : BroadcastReceiver() {
 
     private suspend fun handleSnooze(context: Context, intent: Intent) {
         val reminderId = intent.getIntExtra("reminderId", -1)
-        val medicineName = intent.getStringExtra("medicineName") ?: "Medicine"
+        val medicineName = intent.getStringExtra("medicineName") ?: "دارو"
         if (reminderId == -1) return
 
         NotificationUtils.cancelNotification(context, reminderId)
 
+        // Snooze for 10 minutes
         val snoozeTime = System.currentTimeMillis() + 10 * 60 * 1000L
         val snoozeReminder = Reminder(
             id = reminderId,
@@ -83,7 +97,16 @@ class ReminderReceiver : BroadcastReceiver() {
         ReminderScheduler.scheduleReminder(context, snoozeReminder, medicineName)
     }
 
+    private suspend fun handleDismiss(context: Context, intent: Intent) {
+        val reminderId = intent.getIntExtra("reminderId", -1)
+        if (reminderId == -1) return
+        NotificationUtils.cancelNotification(context, reminderId)
+    }
+
     private suspend fun handleBootCompleted(context: Context) {
+        // Wait a bit for system to fully boot
+        kotlinx.coroutines.delay(5000)
+
         val activeReminders = reminderRepository.getAllActiveReminders().first()
         activeReminders.forEach { reminder ->
             val medicine = medicineRepository.getMedicineById(reminder.medicineId) ?: return@forEach

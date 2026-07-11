@@ -1,6 +1,9 @@
 package ir.danialchoopan.medimate.app
 
 import android.app.Application
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -30,7 +33,7 @@ class MedicineApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        NotificationUtils.createNotificationChannel(this)
+        createNotificationChannels()
         scheduleLowInventoryCheck()
         scheduleRescheduleAlarms()
         seedDrugInteractions()
@@ -40,6 +43,10 @@ class MedicineApplication : Application(), Configuration.Provider {
         Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+
+    private fun createNotificationChannels() {
+        NotificationUtils.createNotificationChannels(this)
+    }
 
     private fun scheduleLowInventoryCheck() {
         val workRequest = PeriodicWorkRequestBuilder<LowInventoryWorker>(6, TimeUnit.HOURS)
