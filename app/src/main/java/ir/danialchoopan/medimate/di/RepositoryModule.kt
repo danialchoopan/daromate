@@ -27,4 +27,8 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideDrugInteractionRepository(dao: DrugInteractionDao): DrugInteractionRepository = DrugInteractionRepositoryImpl(dao)
+
+    @Provides
+    @Singleton
+    fun provideInventoryRepository(invDao: InventoryDao, medDao: MedicineDao): InventoryRepository = InventoryRepositoryImpl(invDao, medDao)
 }

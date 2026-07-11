@@ -160,7 +160,7 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
             )
 
             Spacer(modifier = Modifier.height(Spacing.md))
-            Text("ربعت انبادگیری", style = MaterialTheme.typography.titleMedium)
+            Text("موجودی", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(Spacing.sm))
             OutlinedTextField(
                 value = currentStock, onValueChange = { currentStock = it },

@@ -136,6 +136,10 @@ fun MedicineReminderApp(
             composable("about") {
                 AboutScreen(navController = navController)
             }
+            composable("inventory") {
+                val viewModel: InventoryViewModel = hiltViewModel()
+                InventoryScreen(viewModel = viewModel, navController = navController)
+            }
             composable("onboarding") {
                 OnboardingScreen(onFinish = {
                     navController.navigate(Screen.Dashboard.route) {

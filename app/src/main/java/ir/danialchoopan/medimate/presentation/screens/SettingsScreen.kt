@@ -134,6 +134,15 @@ fun SettingsScreen(
                 )
             }
 
+            SettingsSection(title = "موجودی") {
+                SettingsNavItem(
+                    icon = Icons.Default.DateRange,
+                    title = "مدیریت موجودی",
+                    subtitle = "مشاهده و مدیریت موجودی داروها",
+                    onClick = { navController.navigate("inventory") }
+                )
+            }
+
             SettingsSection(title = "داده ها") {
                 SettingsNavItem(
                     icon = Icons.Default.Delete,
