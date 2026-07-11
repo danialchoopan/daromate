@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -41,7 +40,7 @@ sealed class Screen(
 ) {
     data object Dashboard : Screen("dashboard", "Home", Icons.Filled.Home, Icons.Outlined.Home)
     data object AddMedicine : Screen("add_medicine", "Add", Icons.Filled.Add, Icons.Outlined.Add)
-    data object History : Screen("history", "History", Icons.Filled.List, Icons.Outlined.List)
+    data object History : Screen("history", "History", Icons.Filled.List, Icons.Filled.List)
     data object EditMedicine : Screen("edit_medicine/{medicineId}", "Edit", Icons.Filled.Home, Icons.Outlined.Home)
 }
 

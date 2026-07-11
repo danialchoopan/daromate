@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
@@ -53,7 +53,7 @@ fun DashboardScreen(viewModel: DashboardViewModel, navController: androidx.navig
         ) { isEmpty ->
             if (isEmpty) {
                 EmptyStateView(
-                    icon = Icons.Outlined.MedicalServices,
+                    icon = Icons.Filled.DateRange,
                     title = "No reminders yet",
                     message = "Tap + to add your first medicine and set up reminders.",
                     modifier = Modifier.padding(padding)

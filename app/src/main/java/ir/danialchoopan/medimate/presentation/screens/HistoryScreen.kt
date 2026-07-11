@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Assessment
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -145,7 +145,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                 ) { isEmpty ->
                     if (isEmpty) {
                         EmptyStateView(
-                            icon = Icons.Outlined.Assessment,
+                            icon = Icons.Filled.Info,
                             title = "No logs yet",
                             message = "Your medication history will appear here after you start tracking.",
                             modifier = Modifier.height(200.dp)
