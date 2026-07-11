@@ -1,5 +1,11 @@
 package ir.danialchoopan.medimate.presentation.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ir.danialchoopan.medimate.presentation.components.Spacing
@@ -53,7 +60,16 @@ fun SettingsScreen(
     navController: NavController
 ) {
     val isDarkMode by viewModel.isDarkMode.collectAsState()
+    val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val alarmsEnabled by viewModel.alarmsEnabled.collectAsState()
     var showClearDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.setNotificationsEnabled(granted)
+    }
 
     Scaffold(
         topBar = {
@@ -73,7 +89,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            SettingsSection(title = "جهت") {
+            SettingsSection(title = "ظاهر") {
                 SettingsToggleItem(
                     icon = Icons.Default.Star,
                     title = "حالت تیره",
@@ -83,18 +99,38 @@ fun SettingsScreen(
                 )
             }
 
-            SettingsSection(title = "اطلاع رسانی ها") {
-                SettingsNavItem(
+            SettingsSection(title = "اعلانات") {
+                SettingsToggleItem(
                     icon = Icons.Default.Notifications,
-                    title = "اطلاع رسانی ها",
-                    subtitle = "دریافت اطلاعات دارویی",
-                    onClick = { }
+                    title = "اعلانات",
+                    subtitle = if (notificationsEnabled) "فعال" else "غیرفعال",
+                    checked = notificationsEnabled,
+                    onCheckedChange = { enabled ->
+                        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            viewModel.setNotificationsEnabled(enabled)
+                        }
+                    }
+                )
+                SettingsToggleItem(
+                    icon = Icons.Default.DateRange,
+                    title = "یادآورها",
+                    subtitle = if (alarmsEnabled) "فعال" else "غیرفعال",
+                    checked = alarmsEnabled,
+                    onCheckedChange = { viewModel.setAlarmsEnabled(it) }
                 )
                 SettingsNavItem(
-                    icon = Icons.Default.DateRange,
-                    title = "زمانبندی",
-                    subtitle = "زمان بندی اطلاعات دارویی",
-                    onClick = { }
+                    icon = Icons.Default.Notifications,
+                    title = "تنظیمات اعلان سیستم",
+                    subtitle = "مدیریت اعلانات از تنظیمات گوشی",
+                    onClick = {
+                        val intent = Intent().apply {
+                            action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                    }
                 )
             }
 
@@ -127,6 +163,7 @@ fun SettingsScreen(
             text = { Text("آیا از پاک کردن همه داده ها اطمینان است؟ این امکان برگشت ندارد.") },
             confirmButton = {
                 TextButton(onClick = {
+                    viewModel.clearAllData()
                     showClearDialog = false
                 }) {
                     Text("پاک کردن", color = MaterialTheme.colorScheme.error)

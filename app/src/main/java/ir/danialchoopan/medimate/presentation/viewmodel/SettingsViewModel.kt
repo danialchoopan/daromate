@@ -26,12 +26,32 @@ class SettingsViewModel @Inject constructor(
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode
 
+    private val _notificationsEnabled = MutableStateFlow(true)
+    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled
+
+    private val _alarmsEnabled = MutableStateFlow(true)
+    val alarmsEnabled: StateFlow<Boolean> = _alarmsEnabled
+
     init {
         viewModelScope.launch {
             context.dataStore.data.map { preferences ->
                 preferences[DARK_MODE_KEY] ?: false
             }.collect { isDark ->
                 _isDarkMode.value = isDark
+            }
+        }
+        viewModelScope.launch {
+            context.dataStore.data.map { preferences ->
+                preferences[NOTIFICATIONS_KEY] ?: true
+            }.collect { enabled ->
+                _notificationsEnabled.value = enabled
+            }
+        }
+        viewModelScope.launch {
+            context.dataStore.data.map { preferences ->
+                preferences[ALARMS_KEY] ?: true
+            }.collect { enabled ->
+                _alarmsEnabled.value = enabled
             }
         }
     }
@@ -45,7 +65,36 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            context.dataStore.edit { preferences ->
+                preferences[NOTIFICATIONS_KEY] = enabled
+            }
+            _notificationsEnabled.value = enabled
+        }
+    }
+
+    fun setAlarmsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            context.dataStore.edit { preferences ->
+                preferences[ALARMS_KEY] = enabled
+            }
+            _alarmsEnabled.value = enabled
+        }
+    }
+
+    fun clearAllData() {
+        viewModelScope.launch {
+            context.dataStore.edit { it.clear() }
+            _isDarkMode.value = false
+            _notificationsEnabled.value = true
+            _alarmsEnabled.value = true
+        }
+    }
+
     companion object {
         val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
+        val NOTIFICATIONS_KEY = booleanPreferencesKey("notifications_enabled")
+        val ALARMS_KEY = booleanPreferencesKey("alarms_enabled")
     }
 }
