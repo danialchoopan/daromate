@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,10 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.Assessment
 import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,7 +55,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val shareLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.SendIntent()
+        ActivityResultContracts.StartActivityForResult()
     ) { viewModel.resetExportState() }
 
     LaunchedEffect(exportState) {
@@ -146,7 +145,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                 ) { isEmpty ->
                     if (isEmpty) {
                         EmptyStateView(
-                            icon = Icons.Outlined.BarChart,
+                            icon = Icons.Outlined.Assessment,
                             title = "No logs yet",
                             message = "Your medication history will appear here after you start tracking.",
                             modifier = Modifier.height(200.dp)

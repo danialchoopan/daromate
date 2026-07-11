@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun EmptyStateView(
-    icon: ImageVector = Icons.Outlined.Inventory2,
+    icon: ImageVector = Icons.Outlined.EventNote,
     title: String,
     message: String,
     modifier: Modifier = Modifier

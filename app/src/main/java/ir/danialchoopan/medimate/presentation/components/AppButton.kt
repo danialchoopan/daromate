@@ -2,10 +2,9 @@ package ir.danialchoopan.medimate.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 
 enum class ButtonStyle { Primary, Secondary, Text }
 
@@ -44,7 +42,7 @@ fun AppButton(
         label = "buttonScale"
     )
 
-    val buttonContent: @Composable () -> Unit = {
+    val buttonContent: @Composable RowScope.() -> Unit = {
         if (loading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(18.dp),
@@ -62,7 +60,7 @@ fun AppButton(
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
-                androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
             }
             Text(text = text)
         }
@@ -74,7 +72,6 @@ fun AppButton(
                 onClick = onClick,
                 modifier = modifier.scale(scale),
                 enabled = enabled && !loading,
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
                 content = buttonContent
             )
         }
@@ -83,7 +80,6 @@ fun AppButton(
                 onClick = onClick,
                 modifier = modifier.scale(scale),
                 enabled = enabled && !loading,
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
                 content = buttonContent
             )
         }
@@ -92,7 +88,6 @@ fun AppButton(
                 onClick = onClick,
                 modifier = modifier.scale(scale),
                 enabled = enabled && !loading,
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 content = buttonContent
             )
         }
