@@ -3,8 +3,10 @@ package ir.danialchoopan.medimate.presentation.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -28,6 +30,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -68,12 +71,15 @@ fun AddMedicineScreen(viewModel: AddMedicineViewModel, navController: NavControl
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("افزودن دارو") },
+                title = { Text("افزودن دارو", color = androidx.compose.ui.graphics.Color.White) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت", tint = androidx.compose.ui.graphics.Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = ir.danialchoopan.medimate.presentation.theme.GradientStart
+                )
             )
         }
     ) { padding ->
