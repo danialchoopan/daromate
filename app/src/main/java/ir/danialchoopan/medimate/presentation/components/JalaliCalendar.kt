@@ -41,12 +41,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ir.danialchoopan.medimate.util.DateTimeUtils
 
+/**
+ * CalendarDay - Data for a single day in the Jalali calendar
+ * @param day - Day of month (1-31)
+ * @param taken - Number of times medication was taken
+ * @param expected - Number of times medication should have been taken
+ */
 data class CalendarDay(
     val day: Int,
     val taken: Int,
     val expected: Int
 )
 
+/**
+ * JalaliCalendar - Iranian/Persian calendar component for medication tracking
+ *
+ * Features:
+ * - Month navigation (forward/back arrows)
+ * - Color-coded days based on adherence
+ * - Shows taken/expected count per day
+ * - Legend for color meanings
+ *
+ * Color coding:
+ * - Green: All doses taken (100% adherence)
+ * - Orange: Partial doses taken
+ * - Red: No doses taken
+ * - Gray: No data for this day
+ *
+ * @param dailyData - Map of day number to (taken, expected) pairs
+ */
 @Composable
 fun JalaliCalendar(
     dailyData: Map<Int, Pair<Int, Int>>, // day -> (taken, expected)
@@ -66,12 +89,13 @@ fun JalaliCalendar(
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Month header with navigation
+            // Month header with navigation arrows
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Previous month button
                 IconButton(onClick = {
                     if (currentMonth > 1) currentMonth-- else {
                         currentMonth = 12
@@ -81,6 +105,7 @@ fun JalaliCalendar(
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "ماه قبل")
                 }
 
+                // Month and year display
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = monthName,
@@ -94,6 +119,7 @@ fun JalaliCalendar(
                     )
                 }
 
+                // Next month button
                 IconButton(onClick = {
                     if (currentMonth < 12) currentMonth++ else {
                         currentMonth = 1
@@ -106,7 +132,7 @@ fun JalaliCalendar(
 
             Spacer(modifier = Modifier.height(Spacing.md))
 
-            // Day of week headers
+            // Day of week headers (Saturday to Friday - Persian week)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -151,7 +177,7 @@ fun JalaliCalendar(
 
             Spacer(modifier = Modifier.height(Spacing.sm))
 
-            // Legend
+            // Color legend
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -167,11 +193,12 @@ fun JalaliCalendar(
 
 @Composable
 private fun CalendarDayCell(day: Int, taken: Int, expected: Int) {
+    // Determine cell color based on adherence
     val backgroundColor = when {
         taken == 0 && expected == 0 -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        taken >= expected -> Color(0xFF4CAF50).copy(alpha = 0.2f)
-        taken > 0 -> Color(0xFFF57C00).copy(alpha = 0.2f)
-        else -> Color(0xFFD32F2F).copy(alpha = 0.1f)
+        taken >= expected -> Color(0xFF4CAF50).copy(alpha = 0.2f) // Green - all taken
+        taken > 0 -> Color(0xFFF57C00).copy(alpha = 0.2f)        // Orange - partial
+        else -> Color(0xFFD32F2F).copy(alpha = 0.1f)              // Red - missed
     }
 
     val textColor = when {
@@ -187,7 +214,7 @@ private fun CalendarDayCell(day: Int, taken: Int, expected: Int) {
             .padding(2.dp)
             .clip(CircleShape)
             .background(backgroundColor)
-            .clickable { /* Show day details */ },
+            .clickable { /* TODO: Show day details dialog */ },
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -197,6 +224,7 @@ private fun CalendarDayCell(day: Int, taken: Int, expected: Int) {
                 fontWeight = FontWeight.Medium,
                 color = textColor
             )
+            // Show taken/expected count if there's data
             if (expected > 0) {
                 Text(
                     text = "$taken/$expected",
@@ -226,17 +254,21 @@ private fun LegendItem(color: Color, label: String) {
     }
 }
 
+/**
+ * Calculate which day of the week the first day of a Persian month falls on
+ * Returns 0=Saturday, 1=Sunday, ..., 6=Friday
+ */
 private fun getFirstDayOfWeek(year: Int, month: Int): Int {
     var totalDays = 0
     for (y in 1 until year) {
         totalDays += 365
-        totalDays += y / 28
+        totalDays += y / 28 // Leap years in Persian calendar
     }
     for (m in 1 until month) {
         totalDays += when {
-            m <= 6 -> 31
-            m <= 11 -> 30
-            else -> if (DateTimeUtils.isPersianLeapYear(year)) 30 else 29
+            m <= 6 -> 31   // First 6 months have 31 days
+            m <= 11 -> 30  // Next 5 months have 30 days
+            else -> if (DateTimeUtils.isPersianLeapYear(year)) 30 else 29 // Last month varies
         }
     }
     return (totalDays + 1) % 7
