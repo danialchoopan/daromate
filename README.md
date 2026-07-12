@@ -2,6 +2,14 @@
 
 یک اپلیکیشن پیشرفته، هوشمند و زیبا برای یادآوری مصرف دارو که با **Jetpack Compose** و معماری **Clean Architecture** ساخته شده است.
 
+
+## اسکرین‌شات‌ها
+
+| یادآوری | افزودن دارو | تاریخچه | تنظیمات |
+| :---: | :---: | :---: | :---: |
+| ![یادآوری](./screenshots/reminder.png) | ![افزودن](./screenshots/add.png) | ![تاریخچه](./screenshots/history.png) | ![تنظیمات](./screenshots/setting.png) |
+
+
 ## ویژگی‌ها
 
 ### اصلی
@@ -87,12 +95,6 @@ app/src/main/java/ir/danialchoopan/medimate/
 - `SCHEDULE_EXACT_ALARM` - برای یادآوری‌های دقیق
 - `WAKE_LOCK` - برای نمایش اعلان روی صفحه قفل
 
-## اسکرین‌شات‌ها
-
-| یادآوری | افزودن دارو | تاریخچه | تنظیمات |
-| :---: | :---: | :---: | :---: |
-| ![یادآوری](./screenshots/reminder.png) | ![افزودن](./screenshots/add.png) | ![تاریخچه](./screenshots/history.png) | ![تنظیمات](./screenshots/setting.png) |
-
 ---
 
-ساخته شده با ❤️ توسط دنیال چوپان برای سلامتی.
+ساخته شده با ❤️   برای سلامتی.
