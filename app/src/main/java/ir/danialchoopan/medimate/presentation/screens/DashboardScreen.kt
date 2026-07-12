@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,15 +15,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ir.danialchoopan.medimate.presentation.components.EmptyStateView
 import ir.danialchoopan.medimate.presentation.components.MedicineCard
 import ir.danialchoopan.medimate.presentation.components.Spacing
@@ -35,11 +39,38 @@ fun DashboardScreen(viewModel: DashboardViewModel, navController: androidx.navig
     val timelineItems by viewModel.timelineState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    val today = DateTimeUtils.getCurrentPersianDate()
+    val monthName = DateTimeUtils.getPersianMonthName(today.second)
+    val dayName = DateTimeUtils.getPersianDayName(
+        java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK).let {
+            when (it) {
+                java.util.Calendar.SATURDAY -> 1
+                java.util.Calendar.SUNDAY -> 2
+                java.util.Calendar.MONDAY -> 3
+                java.util.Calendar.TUESDAY -> 4
+                java.util.Calendar.WEDNESDAY -> 5
+                java.util.Calendar.THURSDAY -> 6
+                java.util.Calendar.FRIDAY -> 7
+                else -> 1
+            }
+        }
+    )
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("برنامه روزانه") },
+                title = {
+                    Column {
+                        Text("برنامه روزانه")
+                        Text(
+                            text = "$dayName ${today.third} $monthName",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            fontSize = 14.sp
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior
             )
         }
