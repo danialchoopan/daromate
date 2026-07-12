@@ -3,10 +3,6 @@ package ir.danialchoopan.medimate.presentation.screens
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,12 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import ir.danialchoopan.medimate.domain.model.LogStatus
 import ir.danialchoopan.medimate.presentation.components.AppCard
 import ir.danialchoopan.medimate.presentation.components.EmptyStateView
+import ir.danialchoopan.medimate.presentation.components.JalaliCalendar
 import ir.danialchoopan.medimate.presentation.components.Spacing
 import ir.danialchoopan.medimate.presentation.components.StatusBadge
 import ir.danialchoopan.medimate.presentation.viewmodel.ExportState
@@ -53,6 +52,19 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
     val logs by viewModel.allLogs.collectAsState()
     val exportState by viewModel.exportState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    // Build calendar data from logs
+    val calendarData = remember(logs) {
+        val data = mutableMapOf<Int, Pair<Int, Int>>()
+        // Group logs by day of month
+        logs.groupBy { DateTimeUtils.timestampToPersianDay(it.reminderTime) }
+            .forEach { (day, dayLogs) ->
+                val taken = dayLogs.count { it.status == LogStatus.TAKEN }
+                val expected = dayLogs.size
+                data[day] = Pair(taken, expected)
+            }
+        data
+    }
 
     val shareLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -94,6 +106,7 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
             contentPadding = PaddingValues(horizontal = Spacing.md, vertical = Spacing.sm),
             verticalArrangement = Arrangement.spacedBy(Spacing.sm)
         ) {
+            // Adherence summary card
             item {
                 AppCard(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -132,25 +145,31 @@ fun HistoryScreen(viewModel: HistoryViewModel) {
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(Spacing.md))
+            }
+
+            // Jalali Calendar
+            item {
+                Spacer(modifier = Modifier.height(Spacing.sm))
+                Text("تقویم مصرف", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(Spacing.sm))
+                JalaliCalendar(dailyData = calendarData)
+            }
+
+            // Log history
+            item {
+                Spacer(modifier = Modifier.height(Spacing.sm))
                 Text("تاریخچه دارویی", style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(Spacing.sm))
             }
 
             item {
-                AnimatedContent(
-                    targetState = logs.isEmpty(),
-                    transitionSpec = { fadeIn() togetherWith fadeOut() },
-                    label = "logsContent"
-                ) { isEmpty ->
-                    if (isEmpty) {
-                        EmptyStateView(
-                            icon = Icons.Filled.Info,
-                            title = "هنوز لاگ ثبت نشده است.",
-                            message = "تاریخچه اطلاعات دارویی شما در اینجا نمایان خواهد داد.",
-                            modifier = Modifier.height(200.dp)
-                        )
-                    }
+                if (logs.isEmpty()) {
+                    EmptyStateView(
+                        icon = Icons.Filled.Info,
+                        title = "هنوز لاگ ثبت نشده است.",
+                        message = "تاریخچه اطلاعات دارویی شما در اینجا نمایان خواهد داد.",
+                        modifier = Modifier.height(200.dp)
+                    )
                 }
             }
 
