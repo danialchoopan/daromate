@@ -1,97 +1,98 @@
-# MediMate - Advanced Medicine Reminder 💊⏰
+# دارویار - یادآور پیشرفته دارو 💊⏰
 
-An advanced, smart, and beautiful medication reminder app built with **Jetpack Compose** and **Clean Architecture**.
+یک اپلیکیشن پیشرفته، هوشمند و زیبا برای یادآوری مصرف دارو که با **Jetpack Compose** و معماری **Clean Architecture** ساخته شده است.
 
-## Features
+## ویژگی‌ها
 
-### Core
-- **Advanced Scheduling:** Hourly, daily, weekly, even/odd days, and custom cycles (e.g., 2 weeks on, 1 week off)
-- **Comprehensive Pill Profile:** Track medicine name, dosage, form (tablet, syrup, etc.), instructions, and reason
-- **Pill Tracker (Inventory):** Manage stock with automatic decrement and low-stock notifications
-- **Actionable Notifications:** Mark medicines as "Taken" or "Snooze" directly from the notification
+### اصلی
+- **زمان‌بندی پیشرفته:** ساعتی، روزانه، هفتگی، روزهای زوج/فرد و دوره‌های سفارشی
+- **پروفایل جامع دارو:** ثبت نام دارو، دوز مصرفی، شکل دارو، دستورالعمل مصرف و علت مصرف
+- **مدیریت موجودی:** مدیریت موجودی داروها با هشدار کمبود
+- **یادآوری‌های تعاملی:** تایید مصرف یا تاخیر مستقیماً از اعلان
 
-### Drug Safety
-- **Offline Drug-Drug Interaction Engine:** Pre-populated database with 85+ common drug interactions. Real-time warnings when adding medications that conflict with your current prescriptions
+### ایمنی دارویی
+- **موتور بررسی تداخلات دارویی:** پایگاه داده ۸۵+ تداخل رایج دارویی به صورت آفلاین
 
-### Reliability
-- **Ultra-Reliable Alarm Scheduler:** UTC-normalized timestamps, `SCHEDULE_EXACT_ALARM` permission handling, timezone change detection, and automatic alarm rescheduling on device reboot
-- **Background Rescheduling:** WorkManager safety net ensures alarms are restored even if the OS kills them
+### قابلیت اطمینان
+- **زمان‌بندی قابل اتکا:** زمان‌بندی UTC، تشخیص تغییرات منطقه زمانی، بازیابی خودکار یادآوری‌ها
 
-### Data Management
-- **CSV Export & Sharing:** Export medication history as CSV and share via Telegram, WhatsApp, Email, or any app using Android's native Share Sheet
-- **Local Backup:** All data stays on-device with no external API dependencies
+### مدیریت داده
+- **خروجی CSV:** گزارش تاریخچه مصرف دارویی با اشتراک‌گذاری
+- **تقویم جلالی:** نمایش تقویم ایرانی با وضعیت مصرف هر روز
 
-### Home Screen Widget
-- **Jetpack Glance Widget:** View your next 3 scheduled medications directly on your home screen with a functional "Taken" button that updates the database without opening the app
+### اعلان‌ها
+- **اعلان‌های هوشمند:** کار با تمام نسخه‌های اندروید (۵ تا ۱۴+)
+- **صدای زنگ دارو:** با لرزش و نمایش روی صفحه قفل
 
-### Reports
-- **Adherence Reports:** Visual calendar and percentage-based health reports to track your progress
+### رابط کاربری
+- **Material 3 با رنگ‌های زنده:** تم سبز فیروزه‌ای با گرادیانت
+- **فونت وزیر:** فونت فارسی حرفه‌ای
+- **پشتیبانی RTL:** راست به چپ کامل
+- **تاریک/روشن:** حالت تیره با ذخیره تنظیمات
+- **ویجت خانگی:** نمایش ۳ یادآوری بعدی با دکمه مصرف
 
-### Design
-- **Material 3 UI:** Modern design with full Light/Dark mode support and Dynamic Color (Android 12+)
-- **Polished UX:** Animated transitions, consistent spacing system, reusable component library, and edge-to-edge display
+## تکنولوژی‌های مورد استفاده
 
-## Tech Stack
+- **Jetpack Compose** - رابط کاربری مدرن واکنشی
+- **Material 3** - طراحی مدرن با رنگ‌های پویا
+- **Room** - پایگاه داده محلی با TypeConverter و مایگریشن
+- **Dagger Hilt** - تزریق وابستگی
+- **WorkManager & AlarmManager** - وظایف پس‌زمینه و زمان‌بندی دقیق
+- **Jetpack Glance** - ویجت صفحه خانگی
+- **Coroutines & Flow** - برنامه‌نویسی ناهمگام
+- **Gson** - پارس JSON برای تداخلات دارویی
+- **DataStore** - ذخیره تنظیمات کاربر
 
-- **Jetpack Compose** - Modern reactive UI
-- **Material 3** - Latest design standards with dynamic color
-- **Room** - Local database with TypeConverters and migrations
-- **Dagger Hilt** - Dependency injection
-- **WorkManager & AlarmManager** - Background tasks and precise scheduling
-- **Jetpack Glance** - Home screen widget
-- **Coroutines & Flow** - Asynchronous programming
-- **Gson** - JSON parsing for drug interaction data
-
-## Architecture
+## معماری
 
 ```
 app/src/main/java/ir/danialchoopan/medimate/
-├── app/                    # Application class
+├── app/                    # کلاس Application
 ├── data/
-│   ├── local/              # Room database, DAOs, entities, TypeConverters
-│   ├── repository/         # Repository implementations
-│   └── workers/            # WorkManager workers
+│   ├── local/              # Room DB، DAO، Entity، TypeConverter
+│   ├── repository/         # پیاده‌سازی Repository
+│   └── workers/            # WorkManager Worker
 ├── domain/
-│   ├── model/              # Domain models
-│   ├── repository/         # Repository interfaces
-│   └── usecase/            # Business logic use cases
-├── di/                     # Hilt dependency injection modules
+│   ├── model/              # مدل‌های دامنه
+│   ├── repository/         # رابط‌های Repository
+│   └── usecase/            # منطق کسب‌وکار
+├── di/                     # ماژول‌های Hilt DI
 ├── presentation/
-│   ├── components/         # Reusable UI components
-│   ├── screens/            # Compose screens
-│   ├── theme/              # Material 3 theme
-│   └── viewmodel/          # ViewModels
-├── util/                   # Utilities (scheduling, notifications, etc.)
-└── widget/                 # Jetpack Glance widget
+│   ├── components/         # کامپوننت‌های قابل استفاده مجدد
+│   ├── screens/            # صفحات Compose
+│   ├── theme/              # تم Material 3
+│   └── viewmodel/          # ViewModel
+├── util/                   # ابزارها (زمان‌بندی، اعلان و...)
+└── widget/                 # ویجت Jetpack Glance
 ```
 
-## Database
+## پایگاه داده
 
-- **Version:** 3
-- **Tables:** medicines, reminders, medication_logs, inventory, drug_interactions
-- **Features:** Foreign keys with CASCADE delete, TypeConverters for enums
+- **نسخه:** 3
+- **جداول:** medicines, reminders, medication_logs, inventory, drug_interactions
+- **ویژگی‌ها:** کلیدهای خارجی با CASCADE، TypeConverter برای enum
 
-## Getting Started
+## شروع کار
 
-### Installation
-1. Clone the repository:
+### نصب
+1. پروژه را کلون کنید:
    ```bash
    git clone https://github.com/danialchoopan/daromate.git
    ```
-2. Open the project in **Android Studio Ladybug** or newer.
-3. Sync Gradle and run the app.
+2. پروژه را در **Android Studio Ladybug** یا نسخه‌های جدیدتر باز کنید.
+3. گریدل را سینک کرده و اپلیکیشن را اجرا کنید.
 
-### Permissions
-- `POST_NOTIFICATIONS` - Required for Android 13+ (requested at runtime)
-- `SCHEDULE_EXACT_ALARM` - For precise medication reminders
-- `WAKE_LOCK` - Ensures alarms fire in Doze mode
+### دسترسی‌ها
+- `POST_NOTIFICATIONS` - برای اندروید ۱۳ به بالا (درخواست در زمان اجرا)
+- `SCHEDULE_EXACT_ALARM` - برای یادآوری‌های دقیق
+- `WAKE_LOCK` - برای نمایش اعلان روی صفحه قفل
 
-## Screenshots
+## اسکرین‌شات‌ها
 
-| Dashboard | Add Medicine | History | Widget |
+| یادآوری | افزودن دارو | تاریخچه | تنظیمات |
 | :---: | :---: | :---: | :---: |
-| ![Dashboard](./screenshots/dashboard_light.png) | ![Add Medicine](./screenshots/add_dark.png) | ![History](./screenshots/history.png) | ![Widget](./screenshots/widget.png) |
+| ![یادآوری](./screenshots/reminder.png) | ![افزودن](./screenshots/add.png) | ![تاریخچه](./screenshots/history.png) | ![تنظیمات](./screenshots/setting.png) |
 
 ---
 
-Built with ❤️ for health.
+ساخته شده با ❤️ توسط دنیال چوپان برای سلامتی.
